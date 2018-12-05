@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<style type="text/css">
+	body {
+		position: relative;
+	}
+	.screen {
+		display: block;
+		margin: 50px;
+		width: 321px;
+		height: 475px;
+		position: relative;
+		background-color: #e7e7e8;
+		box-sizing: border-box;
+	}
+	.gr-screen {
+		width: 100%;
+		height: 260px;
+		background-color: #50cd72;
+		text-align: center;
+	}
+	.main-temp {
+		display: inline-block;
+		margin: auto;
+		margin-top: 120px;
+		font-size: 30px;
+		color: #fff;
+	}
+	.item-wr {
+		padding: 0 10px;
+	}
+	.item {
+		position: relative;
+		width: 100%;
+		height: 42px;
+		border-bottom: 1px solid #ccc;
+		font-size: 13px;
+		text-align: center;
+		vertical-align: middle;
+		color: #ccc;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	form {
+		position: absolute;
+		top: 0;
+		left: 400px;
+	}
+	.form-check-label {
+		display: block;
+		background-color: #e3e3e3;
+		padding: 0.5rem 2rem;
+		border-radius: 3px;
+		margin-bottom: 0.5rem;
+		font-weight: bold;
+		text-transform: uppercase;
+		text-align: center;
+	}
+	input:checked + label {
+		color: #26a12b;
+	}
+	.form-check-input {
+		display: none;
+	}
+	.icon {
+		height: 40px;
+		width: auto;
+		margin-left: -60px;
+	}
+	.place {
+		color: #fff;
+		font-size: 18px;
+		text-transform: uppercase;
+		margin-top: 0;
+		font-weight: bold;
+	}
+	.place span {
+		margin: 0 5px;
+	}
+
+</style>
+
+</head>
+<body>
+
+	<div class="screen"> 
+		<div class="gr-screen" id="gr-screen">
+			<!-- <span class="main-temp"></span> -->
+		</div>
+		<div class="item-wr" id="item-wr">
+<!-- 		<div class="item">
+			<span class="dateTime">222</span>
+			<img class="icon">222</img>
+			<span class="temp">222</span>
+		</div> -->
+	</div>
+</div>
+
+<script type="text/javascript">
+
+	window.addEventListener("load", function() {
+
+		var grScreen = document.getElementById('gr-screen');
+		var itemWr = document.getElementById('item-wr');
+		var inputAll = document.getElementsByTagName('input');
+
+		function getLocation(){
+			if(navigator.geolocation){
+				navigator.geolocation.getCurrentPosition(function(pos){
+					let lat = pos.coords.latitude;
+					let lng = pos.coords.longitude;
+
+					fetch(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&units=metric&APPID=875012f111377f30bfe2073d73e59ee8`)
+					.then(function(response){
+						console.log(response)
+						return response.json()
+					}).then(function(weather){
+						console.log(weather);
+						var list = weather.list;
+						console.log(list);
+						for (var i = 5; i < list.length; i+=8) {
+
+							var item = document.createElement('div');
+							item.className = 'item';
+							itemWr.appendChild(item);
+
+							var dateTime =  document.createElement('span');
+							dateTime.className = 'dateTime';
+							dateTime.textContent = list[i].dt_txt;
+							item.appendChild(dateTime);
+
+							var icon =  document.createElement('img');
+							icon.className = 'icon';
+							icon.setAttribute('src', 'icons/' + list[i].weather[0].icon + '.png')
+							item.appendChild(icon);
+
+							var temp = document.createElement('span');
+							temp.className = 'temp';
+							temp.textContent = list[i].main.temp + '°C';
+							item.appendChild(temp);
+
+						}
+						var mainTemp = document.createElement('span');
+						mainTemp.className = 'main-temp';
+						var mainT = document.getElementsByClassName('item')[0].children[2];
+						mainTemp.textContent = mainT.textContent;
+						console.log(mainT);
+						grScreen.appendChild(mainTemp);
+
+						var pPlace = document.createElement('p');
+						pPlace.className = 'place';
+						var spanCity = document.createElement('span');
+						spanCity.textContent = weather.city.name;
+						var spanCountry = document.createElement('span');
+						spanCountry.textContent = weather.city.country;
+						pPlace.appendChild(spanCity);
+						pPlace.appendChild(spanCountry);
+						grScreen.appendChild(pPlace);
+					});
+					console.log(`Lat is ${lat} and long is ${lng}`);
+				})
+			}
+		};
+
+		getLocation();
+
+	});
+
+</script>
+
+</body>
+
+
+</html>
